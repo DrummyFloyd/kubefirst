@@ -24,12 +24,6 @@ func GetFlags(cmd *cobra.Command, cloudProvider string) (types.CliFlags, error) 
 		return cliFlags, err
 	}
 
-	cloudRegionFlag, err := cmd.Flags().GetString("cloud-region")
-	if err != nil {
-		progress.Error(err.Error())
-		return cliFlags, err
-	}
-
 	clusterNameFlag, err := cmd.Flags().GetString("cluster-name")
 	if err != nil {
 		progress.Error(err.Error())
@@ -102,6 +96,13 @@ func GetFlags(cmd *cobra.Command, cloudProvider string) (types.CliFlags, error) 
 	if err != nil {
 		progress.Error(err.Error())
 		return cliFlags, err
+	if cloudProvider != "k3s" {
+		cloudRegionFlag, err := cmd.Flags().GetString("cloud-region")
+		if err != nil {
+			progress.Error(err.Error())
+			return cliFlags, err
+		}
+		cliFlags.CloudRegion = cloudRegionFlag
 	}
 
 	if cloudProvider == "aws" {
@@ -125,7 +126,6 @@ func GetFlags(cmd *cobra.Command, cloudProvider string) (types.CliFlags, error) 
 	}
 
 	cliFlags.AlertsEmail = alertsEmailFlag
-	cliFlags.CloudRegion = cloudRegionFlag
 	cliFlags.ClusterName = clusterNameFlag
 	cliFlags.DnsProvider = dnsProviderFlag
 	cliFlags.DomainName = domainNameFlag
