@@ -22,6 +22,8 @@ type CliFlags struct {
 	GitopsTemplateBranch string
 	GitopsTemplateURL    string
 	GoogleProject        string
+	K3sIpServers         []string
+	K3sIpAgents          []string
 	UseTelemetry         bool
 	Ecr                  bool
 	NodeType             string

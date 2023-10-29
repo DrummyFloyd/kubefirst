@@ -104,6 +104,22 @@ func GetFlags(cmd *cobra.Command, cloudProvider string) (types.CliFlags, error) 
 		}
 		cliFlags.CloudRegion = cloudRegionFlag
 	}
+	if cloudProvider == "k3s" {
+		k3sIpServers, err := cmd.Flags().GetStringSlice("k3s-ip-servers")
+		if err != nil {
+			progress.Error(err.Error())
+			return cliFlags, err
+		}
+		cliFlags.K3sIpServers = k3sIpServers
+	}
+	if cloudProvider == "k3s" {
+		k3sIpAgents, err := cmd.Flags().GetStringSlice("k3s-ip-servers")
+		if err != nil {
+			progress.Error(err.Error())
+			return cliFlags, err
+		}
+		cliFlags.K3sIpAgents = k3sIpAgents
+	}
 
 	if cloudProvider == "aws" {
 		ecrFlag, err := cmd.Flags().GetBool("ecr")

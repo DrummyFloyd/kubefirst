@@ -19,6 +19,8 @@ var (
 	ciFlag                   bool
 	clusterNameFlag          string
 	clusterTypeFlag          string
+	k3sIpServersFlag         []string
+	k3sIpAgentsFlag          []string
 	dnsProviderFlag          string
 	domainNameFlag           string
 	githubOrgFlag            string
@@ -74,6 +76,9 @@ func Create() *cobra.Command {
 	createCmd.Flags().BoolVar(&ciFlag, "ci", false, "if running kubefirst in ci, set this flag to disable interactive features")
 	createCmd.Flags().StringVar(&clusterNameFlag, "cluster-name", "kubefirst", "the name of the cluster to create")
 	createCmd.Flags().StringVar(&clusterTypeFlag, "cluster-type", "mgmt", "the type of cluster to create (i.e. mgmt|workload)")
+	createCmd.Flags().StringSliceVar(&k3sIpServersFlag, "k3s-ip-servers", []string{}, "the list of k3s (servers) ip x.x.x.x y.y.y.y space separated  (required)")
+	createCmd.MarkFlagRequired("k3s-ips-servers")
+	createCmd.Flags().StringSliceVar(&k3sIpAgentsFlag, "k3s-ip-agents", []string{}, "the list of k3s (agents) ip x.x.x.x y.y.y.y space separated")
 	createCmd.Flags().StringVar(&dnsProviderFlag, "dns-provider", "cloudflare", fmt.Sprintf("the dns provider - one of: %s", supportedDNSProviders))
 	createCmd.Flags().StringVar(&domainNameFlag, "domain-name", "", "the cloudProvider DNS Name to use for DNS records (i.e. your-domain.com|subdomain.your-domain.com) (required)")
 	createCmd.Flags().StringVar(&gitProviderFlag, "git-provider", "github", fmt.Sprintf("the git provider - one of: %s", supportedGitProviders))
