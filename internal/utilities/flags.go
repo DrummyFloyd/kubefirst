@@ -162,8 +162,14 @@ func GetFlags(cmd *cobra.Command, cloudProvider string) (types.CliFlags, error) 
 	viper.Set("flags.domain-name", cliFlags.DomainName)
 	viper.Set("flags.git-provider", cliFlags.GitProvider)
 	viper.Set("flags.git-protocol", cliFlags.GitProtocol)
-	viper.Set("flags.cloud-region", cliFlags.CloudRegion)
+	if cloudProvider != "k3s" {
+		viper.Set("flags.cloud-region", cliFlags.CloudRegion)
+	}
 	viper.Set("kubefirst.cloud-provider", cloudProvider)
+	if cloudProvider == "k3s" {
+		viper.Set("flags.k3s-ip-servers", cliFlags.K3sIpServers)
+		viper.Set("flags.k3s-ip-agents", cliFlags.K3sIpAgents)
+	}
 	viper.WriteConfig()
 
 	return cliFlags, nil
