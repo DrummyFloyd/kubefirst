@@ -15,6 +15,7 @@ import (
 
 var (
 	// Create
+	// TODO: add ssh key flag to connect on k3s targets
 	alertsEmailFlag          string
 	ciFlag                   bool
 	clusterNameFlag          string
