@@ -28,4 +28,9 @@ type CliFlags struct {
 	Ecr                  bool
 	NodeType             string
 	NodeCount            string
+	K3sSshUser           string
+	K3sSshPrivateKey     string
+
+	UseTelemetry bool
+	Ecr          bool
 }
