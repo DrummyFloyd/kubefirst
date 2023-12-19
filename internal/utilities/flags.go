@@ -99,6 +99,7 @@ func GetFlags(cmd *cobra.Command, cloudProvider string) (types.CliFlags, error) 
 			return cliFlags, err
 		}
 		cliFlags.K3sIpServers = k3sIpServersFlag
+	}
 
 	nodeTypeFlag, err := cmd.Flags().GetString("node-type")
 	if err != nil {
@@ -110,8 +111,9 @@ func GetFlags(cmd *cobra.Command, cloudProvider string) (types.CliFlags, error) 
 	if err != nil {
 		progress.Error(err.Error())
 		return cliFlags, err
+	}
+
 	if cloudProvider != "k3s" {
-		cloudRegionFlag, err := cmd.Flags().GetString("cloud-region")
 		k3sIpAgentsFlag, err := cmd.Flags().GetStringSlice("k3s-ip-agents")
 		if err != nil {
 			progress.Error(err.Error())
