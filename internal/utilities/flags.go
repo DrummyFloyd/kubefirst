@@ -91,15 +91,6 @@ func GetFlags(cmd *cobra.Command, cloudProvider string) (types.CliFlags, error) 
 		progress.Error(err.Error())
 		return cliFlags, err
 	}
-	// TODO: reafactor this part
-	if cloudProvider == "k3s" {
-		k3sIpServersFlag, err := cmd.Flags().GetStringSlice("k3s-ip-servers")
-		if err != nil {
-			progress.Error(err.Error())
-			return cliFlags, err
-		}
-		cliFlags.K3sIpServers = k3sIpServersFlag
-	}
 
 	nodeTypeFlag, err := cmd.Flags().GetString("node-type")
 	if err != nil {
@@ -111,29 +102,6 @@ func GetFlags(cmd *cobra.Command, cloudProvider string) (types.CliFlags, error) 
 	if err != nil {
 		progress.Error(err.Error())
 		return cliFlags, err
-	}
-
-	if cloudProvider != "k3s" {
-		k3sIpAgentsFlag, err := cmd.Flags().GetStringSlice("k3s-ip-agents")
-		if err != nil {
-			progress.Error(err.Error())
-			return cliFlags, err
-		}
-		cliFlags.K3sIpAgents = k3sIpAgentsFlag
-
-		k3sSshUserFlag, err := cmd.Flags().GetString("k3s-ssh-user")
-		if err != nil {
-			progress.Error(err.Error())
-			return cliFlags, err
-		}
-		cliFlags.K3sSshUser = k3sSshUserFlag
-
-		k3sSshPrivateKeyFlag, err := cmd.Flags().GetString("k3s-ssh-private-key")
-		if err != nil {
-			progress.Error(err.Error())
-			return cliFlags, err
-		}
-		cliFlags.K3sSshPrivateKey = k3sSshPrivateKeyFlag
 	}
 
 	if cloudProvider == "aws" {
@@ -154,6 +122,36 @@ func GetFlags(cmd *cobra.Command, cloudProvider string) (types.CliFlags, error) 
 		}
 
 		cliFlags.GoogleProject = googleProject
+	}
+
+	// TODO: reafactor this part
+	if cloudProvider == "k3s" {
+		k3sIpServersFlag, err := cmd.Flags().GetStringSlice("k3s-ip-servers")
+		if err != nil {
+			progress.Error(err.Error())
+			return cliFlags, err
+		}
+		cliFlags.K3sIpServers = k3sIpServersFlag
+		k3sIpAgentsFlag, err := cmd.Flags().GetStringSlice("k3s-ip-agents")
+		if err != nil {
+			progress.Error(err.Error())
+			return cliFlags, err
+		}
+		cliFlags.K3sIpAgents = k3sIpAgentsFlag
+
+		k3sSshUserFlag, err := cmd.Flags().GetString("k3s-ssh-user")
+		if err != nil {
+			progress.Error(err.Error())
+			return cliFlags, err
+		}
+		cliFlags.K3sSshUser = k3sSshUserFlag
+
+		k3sSshPrivateKeyFlag, err := cmd.Flags().GetString("k3s-ssh-private-key")
+		if err != nil {
+			progress.Error(err.Error())
+			return cliFlags, err
+		}
+		cliFlags.K3sSshPrivateKey = k3sSshPrivateKeyFlag
 	}
 
 	cliFlags.AlertsEmail = alertsEmailFlag
