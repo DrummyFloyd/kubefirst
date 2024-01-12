@@ -23,8 +23,8 @@ var (
 	nodeCountFlag            string
 	clusterNameFlag          string
 	clusterTypeFlag          string
-	k3sIpServersFlag         []string
-	k3sIpAgentsFlag          []string
+	k3sServersIpsFlag        []string
+	k3sAgentsIpsFlag         []string
 	k3sSshUserflag           string
 	k3sSshPrivateKeyflag     string
 	dnsProviderFlag          string
@@ -85,9 +85,9 @@ func Create() *cobra.Command {
 	createCmd.Flags().StringVar(&nodeCountFlag, "node-count", "3", "NOT USED, PRESENT FOR COMPATIBILITY ISSUE")
 	createCmd.Flags().StringVar(&clusterNameFlag, "cluster-name", "kubefirst", "the name of the cluster to create")
 	createCmd.Flags().StringVar(&clusterTypeFlag, "cluster-type", "mgmt", "the type of cluster to create (i.e. mgmt|workload)")
-	createCmd.Flags().StringSliceVar(&k3sIpServersFlag, "k3s-ip-servers", []string{}, "the list of k3s (servers) ip x.x.x.x,y.y.y.y comma separated  (required)")
+	createCmd.Flags().StringSliceVar(&k3sServersIpsFlag, "k3s-servers-ips", []string{}, "the list of k3s (servers) ip x.x.x.x,y.y.y.y comma separated  (required)")
 	createCmd.MarkFlagRequired("k3s-ips-servers")
-	createCmd.Flags().StringSliceVar(&k3sIpAgentsFlag, "k3s-ip-agents", []string{}, "the list of k3s (agents) ip x.x.x.x,y.y.y.y comma separated")
+	createCmd.Flags().StringSliceVar(&k3sAgentsIpsFlag, "k3s-agents-ips", []string{}, "the list of k3s (agents) ip x.x.x.x,y.y.y.y comma separated")
 	createCmd.Flags().StringVar(&k3sSshUserflag, "k3s-ssh-user", "root", "the user used to log into servers with ssh connection")
 	createCmd.Flags().StringVar(&k3sSshPrivateKeyflag, "k3s-ssh-private-key", "", "the private key used to log into servers with ssh connection")
 	createCmd.MarkFlagRequired("k3s-ssh-private-key")

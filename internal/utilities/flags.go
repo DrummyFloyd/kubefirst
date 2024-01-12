@@ -126,13 +126,13 @@ func GetFlags(cmd *cobra.Command, cloudProvider string) (types.CliFlags, error) 
 
 	// TODO: reafactor this part
 	if cloudProvider == "k3s" {
-		k3sIpServersFlag, err := cmd.Flags().GetStringSlice("k3s-ip-servers")
+		k3sIpServersFlag, err := cmd.Flags().GetStringSlice("k3s-servers-ips")
 		if err != nil {
 			progress.Error(err.Error())
 			return cliFlags, err
 		}
 		cliFlags.K3sIpServers = k3sIpServersFlag
-		k3sIpAgentsFlag, err := cmd.Flags().GetStringSlice("k3s-ip-agents")
+		k3sIpAgentsFlag, err := cmd.Flags().GetStringSlice("k3s-agents-ips")
 		if err != nil {
 			progress.Error(err.Error())
 			return cliFlags, err
@@ -179,8 +179,8 @@ func GetFlags(cmd *cobra.Command, cloudProvider string) (types.CliFlags, error) 
 	viper.Set("flags.cloud-region", cliFlags.CloudRegion)
 	viper.Set("kubefirst.cloud-provider", cloudProvider)
 	if cloudProvider == "k3s" {
-		viper.Set("flags.k3s-ip-servers", cliFlags.K3sIpServers)
-		viper.Set("flags.k3s-ip-agents", cliFlags.K3sIpAgents)
+		viper.Set("flags.k3s-servers-ips", cliFlags.K3sIpServers)
+		viper.Set("flags.k3s-agents-ips", cliFlags.K3sIpAgents)
 		viper.Set("flags.k3s-ssh-user", cliFlags.K3sSshUser)
 		viper.Set("flags.k3s-ssh-private-key", cliFlags.K3sSshPrivateKey)
 	}
