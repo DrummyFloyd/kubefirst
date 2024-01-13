@@ -97,7 +97,7 @@ func CreateClusterRecordFromRaw(useTelemetry bool, gitOwner string, gitUser stri
 	case "civo":
 		cl.CivoAuth.Token = os.Getenv("CIVO_TOKEN")
 	case "aws":
-		//ToDo: where to get credentials?
+		// ToDo: where to get credentials?
 		cl.AWSAuth.AccessKeyID = viper.GetString("kubefirst.state-store-creds.access-key-id")
 		cl.AWSAuth.SecretAccessKey = viper.GetString("kubefirst.state-store-creds.secret-access-key-id")
 		cl.AWSAuth.SessionToken = viper.GetString("kubefirst.state-store-creds.token")
@@ -107,6 +107,9 @@ func CreateClusterRecordFromRaw(useTelemetry bool, gitOwner string, gitUser stri
 		cl.DigitaloceanAuth.SpacesSecret = os.Getenv("DO_SPACES_SECRET")
 	case "vultr":
 		cl.VultrAuth.Token = os.Getenv("VULTR_API_KEY")
+	case "k3s":
+		// TODO: waht is the purpose of this?
+		log.Info().Msgf("do i passed in here 2?")
 	}
 
 	cl.StateStoreCredentials.AccessKeyID = viper.GetString("kubefirst.state-store-creds.access-key-id")
@@ -177,7 +180,7 @@ func CreateClusterDefinitionRecordFromRaw(gitAuth apiTypes.GitAuth, cliFlags typ
 	case "civo":
 		cl.CivoAuth.Token = os.Getenv("CIVO_TOKEN")
 	case "aws":
-		//ToDo: where to get credentials?
+		// ToDo: where to get credentials?
 		cl.AWSAuth.AccessKeyID = viper.GetString("kubefirst.state-store-creds.access-key-id")
 		cl.AWSAuth.SecretAccessKey = viper.GetString("kubefirst.state-store-creds.secret-access-key-id")
 		cl.AWSAuth.SessionToken = viper.GetString("kubefirst.state-store-creds.token")
@@ -188,6 +191,15 @@ func CreateClusterDefinitionRecordFromRaw(gitAuth apiTypes.GitAuth, cliFlags typ
 		cl.DigitaloceanAuth.SpacesSecret = os.Getenv("DO_SPACES_SECRET")
 	case "vultr":
 		cl.VultrAuth.Token = os.Getenv("VULTR_API_KEY")
+	case "k3s":
+		agentsIpsArray := viper.GetStringSlice("flags.k3s-agents-ips")
+		if len(agentsIpsArray) == 0 {
+			agentsIpsArray = []string{}
+		}
+		cl.K3sAuth.K3sServersIps = viper.GetStringSlice("flags.k3s-servers-ips")
+		cl.K3sAuth.K3sAgentsIps = agentsIpsArray
+		cl.K3sAuth.K3sSshUser = viper.GetString("flags.k3s-ssh-user")
+		cl.K3sAuth.K3sSshPrivateKey = viper.GetString("flags.k3s-ssh-private-key")
 	case "google":
 		jsonFilePath := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
