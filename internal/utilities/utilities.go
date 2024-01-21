@@ -200,6 +200,7 @@ func CreateClusterDefinitionRecordFromRaw(gitAuth apiTypes.GitAuth, cliFlags typ
 		cl.K3sAuth.K3sAgentsIps = agentsIpsArray
 		cl.K3sAuth.K3sSshUser = viper.GetString("flags.k3s-ssh-user")
 		cl.K3sAuth.K3sSshPrivateKey = viper.GetString("flags.k3s-ssh-private-key")
+		cl.K3sAuth.K3sExtraConf = viper.GetStringSlice("flags.k3s-extra-conf")
 	case "google":
 		jsonFilePath := os.Getenv("GOOGLE_APPLICATION_CREDENTIALS")
 
