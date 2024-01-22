@@ -107,9 +107,6 @@ func CreateClusterRecordFromRaw(useTelemetry bool, gitOwner string, gitUser stri
 		cl.DigitaloceanAuth.SpacesSecret = os.Getenv("DO_SPACES_SECRET")
 	case "vultr":
 		cl.VultrAuth.Token = os.Getenv("VULTR_API_KEY")
-	case "k3s":
-		// TODO: waht is the purpose of this?
-		log.Info().Msgf("do i passed in here 2?")
 	}
 
 	cl.StateStoreCredentials.AccessKeyID = viper.GetString("kubefirst.state-store-creds.access-key-id")
