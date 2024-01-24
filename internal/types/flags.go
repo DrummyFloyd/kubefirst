@@ -22,12 +22,12 @@ type CliFlags struct {
 	GitopsTemplateBranch string
 	GitopsTemplateURL    string
 	GoogleProject        string
-	K3sIpServers         []string
 	UseTelemetry         bool
 	Ecr                  bool
 	NodeType             string
 	NodeCount            string
 	K3sSshUser           string
 	K3sSshPrivateKey     string
-	K3sExtraConf         []string
+	K3sServersPrivateIps []string
+	K3sServersArgs       []string
 }

@@ -23,10 +23,10 @@ var (
 	nodeCountFlag            string
 	clusterNameFlag          string
 	clusterTypeFlag          string
-	k3sServersIpsFlag        []string
+	k3sServersPrivateIpsFlag []string
 	k3sSshUserflag           string
 	k3sSshPrivateKeyflag     string
-	k3sExtraConfFlags        []string
+	K3sServersArgsFlags      []string
 	dnsProviderFlag          string
 	domainNameFlag           string
 	githubOrgFlag            string
@@ -85,12 +85,12 @@ func Create() *cobra.Command {
 	createCmd.Flags().StringVar(&nodeCountFlag, "node-count", "3", "NOT USED, PRESENT FOR COMPATIBILITY ISSUE")
 	createCmd.Flags().StringVar(&clusterNameFlag, "cluster-name", "kubefirst", "the name of the cluster to create")
 	createCmd.Flags().StringVar(&clusterTypeFlag, "cluster-type", "mgmt", "the type of cluster to create (i.e. mgmt|workload)")
-	createCmd.Flags().StringSliceVar(&k3sServersIpsFlag, "k3s-servers-ips", []string{}, "the list of k3s (servers) ip x.x.x.x,y.y.y.y comma separated  (required)")
-	createCmd.MarkFlagRequired("k3s-ips-servers")
-	createCmd.Flags().StringSliceVar(&k3sExtraConfFlags, "k3s-extra-conf", []string{"--disable traefik", "--write-kubeconfig-mode 644"}, "list of k3s extras flags to add to the k3s server installation,comma separated in between quote")
-	createCmd.Flags().StringVar(&k3sSshUserflag, "k3s-ssh-user", "root", "the user used to log into servers with ssh connection")
-	createCmd.Flags().StringVar(&k3sSshPrivateKeyflag, "k3s-ssh-private-key", "", "the private key used to log into servers with ssh connection")
-	createCmd.MarkFlagRequired("k3s-ssh-private-key")
+	createCmd.Flags().StringSliceVar(&k3sServersPrivateIpsFlag, "servers-private-ips", []string{}, "the list of k3s (servers) private ip x.x.x.x,y.y.y.y comma separated  (required)")
+	createCmd.MarkFlagRequired("servers-private-ips")
+	createCmd.Flags().StringSliceVar(&K3sServersArgsFlags, "servers-args", []string{"--disable traefik", "--write-kubeconfig-mode 644"}, "list of k3s extras flags to add to the k3s server installation,comma separated in between quote")
+	createCmd.Flags().StringVar(&k3sSshUserflag, "ssh-user", "root", "the user used to log into servers with ssh connection")
+	createCmd.Flags().StringVar(&k3sSshPrivateKeyflag, "ssh-privatekey", "", "the private key used to log into servers with ssh connection")
+	createCmd.MarkFlagRequired("ssh-privatekey")
 	createCmd.Flags().StringVar(&dnsProviderFlag, "dns-provider", "cloudflare", fmt.Sprintf("the dns provider - one of: %s", supportedDNSProviders))
 	createCmd.Flags().StringVar(&domainNameFlag, "domain-name", "", "the cloudProvider DNS Name to use for DNS records (i.e. your-domain.com|subdomain.your-domain.com) (required)")
 	createCmd.Flags().StringVar(&gitProviderFlag, "git-provider", "github", fmt.Sprintf("the git provider - one of: %s", supportedGitProviders))
