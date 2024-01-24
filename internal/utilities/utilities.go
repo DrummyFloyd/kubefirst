@@ -189,12 +189,7 @@ func CreateClusterDefinitionRecordFromRaw(gitAuth apiTypes.GitAuth, cliFlags typ
 	case "vultr":
 		cl.VultrAuth.Token = os.Getenv("VULTR_API_KEY")
 	case "k3s":
-		agentsIpsArray := viper.GetStringSlice("flags.k3s-agents-ips")
-		if len(agentsIpsArray) == 0 {
-			agentsIpsArray = []string{}
-		}
 		cl.K3sAuth.K3sServersIps = viper.GetStringSlice("flags.k3s-servers-ips")
-		cl.K3sAuth.K3sAgentsIps = agentsIpsArray
 		cl.K3sAuth.K3sSshUser = viper.GetString("flags.k3s-ssh-user")
 		cl.K3sAuth.K3sSshPrivateKey = viper.GetString("flags.k3s-ssh-private-key")
 		cl.K3sAuth.K3sExtraConf = viper.GetStringSlice("flags.k3s-extra-conf")
