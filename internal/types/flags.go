@@ -29,5 +29,6 @@ type CliFlags struct {
 	K3sSshUser           string
 	K3sSshPrivateKey     string
 	K3sServersPrivateIps []string
+	K3sServersPublicIps  []string
 	K3sServersArgs       []string
 }
