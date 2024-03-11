@@ -15,6 +15,7 @@ type CliFlags struct {
 	ClusterType          string
 	DnsProvider          string
 	DomainName           string
+	SubDomainName        string
 	GitProvider          string
 	GitProtocol          string
 	GithubOrg            string
@@ -31,4 +32,5 @@ type CliFlags struct {
 	K3sServersPrivateIps []string
 	K3sServersPublicIps  []string
 	K3sServersArgs       []string
+	InstallCatalogApps   string
 }

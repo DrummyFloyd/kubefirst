@@ -24,6 +24,7 @@ var (
 	clusterTypeFlag          string
 	dnsProviderFlag          string
 	domainNameFlag           string
+	subdomainNameFlag        string
 	googleProjectFlag        string
 	githubOrgFlag            string
 	gitlabGroupFlag          string
@@ -35,6 +36,7 @@ var (
 	forceDestroyFlag         bool
 	nodeTypeFlag             string
 	nodeCountFlag            string
+	installCatalogApps       string
 
 	// RootCredentials
 	copyArgoCDPasswordToClipboardFlag bool
@@ -94,6 +96,7 @@ func Create() *cobra.Command {
 	createCmd.Flags().StringVar(&nodeCountFlag, "node-count", googleDefaults.NodeCount, "the node count for the cluster")
 	createCmd.Flags().StringVar(&nodeTypeFlag, "node-type", googleDefaults.InstanceSize, "the instance size of the cluster to create")
 	createCmd.Flags().StringVar(&dnsProviderFlag, "dns-provider", "google", fmt.Sprintf("the dns provider - one of: %s", supportedDNSProviders))
+	createCmd.Flags().StringVar(&subdomainNameFlag, "subdomain", "", "the subdomain to use for DNS records (Cloudflare)")
 	createCmd.Flags().StringVar(&domainNameFlag, "domain-name", "", "the GCP DNS Name to use for DNS records (i.e. your-domain.com|subdomain.your-domain.com) (required)")
 	createCmd.MarkFlagRequired("domain-name")
 	createCmd.Flags().StringVar(&googleProjectFlag, "google-project", "", "google project id (required)")
@@ -104,6 +107,7 @@ func Create() *cobra.Command {
 	createCmd.Flags().StringVar(&gitlabGroupFlag, "gitlab-group", "", "the GitLab group for the new gitops and metaphor projects - required if using gitlab")
 	createCmd.Flags().StringVar(&gitopsTemplateBranchFlag, "gitops-template-branch", "", "the branch to clone for the gitops-template repository")
 	createCmd.Flags().StringVar(&gitopsTemplateURLFlag, "gitops-template-url", "https://github.com/kubefirst/gitops-template.git", "the fully qualified url to the gitops-template repository to clone")
+	createCmd.Flags().StringVar(&installCatalogApps, "install-catalog-apps", "", "comma seperated values to install after provision")
 	createCmd.Flags().BoolVar(&useTelemetryFlag, "use-telemetry", true, "whether to emit telemetry")
 	createCmd.Flags().BoolVar(&forceDestroyFlag, "force-destroy", false, "allows force destruction on objects (helpful for test environments, defaults to false)")
 	return createCmd

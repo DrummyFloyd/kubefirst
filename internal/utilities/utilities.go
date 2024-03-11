@@ -7,10 +7,12 @@ See the LICENSE file for more details.
 package utilities
 
 import (
+	"bufio"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"io/ioutil"
+	"net/http"
 	"os"
 	"strconv"
 	"time"
@@ -47,7 +49,16 @@ const (
 	exportFilePath = "/tmp/api/cluster/export"
 )
 
-func CreateClusterRecordFromRaw(useTelemetry bool, gitOwner string, gitUser string, gitToken string, gitlabOwnerGroupID int, gitopsTemplateURL string, gitopsTemplateBranch string) apiTypes.Cluster {
+func CreateClusterRecordFromRaw(
+	useTelemetry bool,
+	gitOwner string,
+	gitUser string,
+	gitToken string,
+	gitlabOwnerGroupID int,
+	gitopsTemplateURL string,
+	gitopsTemplateBranch string,
+	catalogApps []apiTypes.GitopsCatalogApp,
+) apiTypes.Cluster {
 	cloudProvider := viper.GetString("kubefirst.cloud-provider")
 	domainName := viper.GetString("flags.domain-name")
 	gitProvider := viper.GetString("flags.git-provider")
@@ -58,29 +69,30 @@ func CreateClusterRecordFromRaw(useTelemetry bool, gitOwner string, gitUser stri
 	}
 
 	cl := apiTypes.Cluster{
-		ID:                    primitive.NewObjectID(),
-		CreationTimestamp:     fmt.Sprintf("%v", time.Now().UTC()),
-		UseTelemetry:          useTelemetry,
-		Status:                "provisioned",
-		AlertsEmail:           viper.GetString("flags.alerts-email"),
-		ClusterName:           viper.GetString("flags.cluster-name"),
-		CloudProvider:         cloudProvider,
-		CloudRegion:           viper.GetString("flags.cloud-region"),
-		DomainName:            domainName,
-		ClusterID:             viper.GetString("kubefirst.cluster-id"),
-		ClusterType:           "mgmt",
-		GitopsTemplateURL:     gitopsTemplateURL,
-		GitopsTemplateBranch:  gitopsTemplateBranch,
-		GitProvider:           gitProvider,
-		GitHost:               fmt.Sprintf("%s.com", gitProvider),
-		GitProtocol:           viper.GetString("flags.git-protocol"),
-		DnsProvider:           viper.GetString("flags.dns-provider"),
-		GitlabOwnerGroupID:    gitlabOwnerGroupID,
-		AtlantisWebhookSecret: viper.GetString("secrets.atlantis-webhook"),
-		AtlantisWebhookURL:    fmt.Sprintf("https://atlantis.%s/events", domainName),
-		KubefirstTeam:         kubefirstTeam,
-		ArgoCDAuthToken:       viper.GetString("components.argocd.auth-token"),
-		ArgoCDPassword:        viper.GetString("components.argocd.password"),
+		ID:                     primitive.NewObjectID(),
+		CreationTimestamp:      fmt.Sprintf("%v", time.Now().UTC()),
+		UseTelemetry:           useTelemetry,
+		Status:                 "provisioned",
+		AlertsEmail:            viper.GetString("flags.alerts-email"),
+		ClusterName:            viper.GetString("flags.cluster-name"),
+		CloudProvider:          cloudProvider,
+		CloudRegion:            viper.GetString("flags.cloud-region"),
+		DomainName:             domainName,
+		ClusterID:              viper.GetString("kubefirst.cluster-id"),
+		ClusterType:            "mgmt",
+		GitopsTemplateURL:      gitopsTemplateURL,
+		GitopsTemplateBranch:   gitopsTemplateBranch,
+		GitProvider:            gitProvider,
+		GitHost:                fmt.Sprintf("%s.com", gitProvider),
+		GitProtocol:            viper.GetString("flags.git-protocol"),
+		DnsProvider:            viper.GetString("flags.dns-provider"),
+		GitlabOwnerGroupID:     gitlabOwnerGroupID,
+		AtlantisWebhookSecret:  viper.GetString("secrets.atlantis-webhook"),
+		AtlantisWebhookURL:     fmt.Sprintf("https://atlantis.%s/events", domainName),
+		KubefirstTeam:          kubefirstTeam,
+		ArgoCDAuthToken:        viper.GetString("components.argocd.auth-token"),
+		ArgoCDPassword:         viper.GetString("components.argocd.password"),
+		PostInstallCatalogApps: catalogApps,
 		GitAuth: apiTypes.GitAuth{
 			Token:      gitToken,
 			User:       gitUser,
@@ -124,7 +136,7 @@ func CreateClusterRecordFromRaw(useTelemetry bool, gitOwner string, gitUser stri
 	return cl
 }
 
-func CreateClusterDefinitionRecordFromRaw(gitAuth apiTypes.GitAuth, cliFlags types.CliFlags) apiTypes.ClusterDefinition {
+func CreateClusterDefinitionRecordFromRaw(gitAuth apiTypes.GitAuth, cliFlags types.CliFlags, catalogApps []apiTypes.GitopsCatalogApp) apiTypes.ClusterDefinition {
 	cloudProvider := viper.GetString("kubefirst.cloud-provider")
 	domainName := viper.GetString("flags.domain-name")
 	gitProvider := viper.GetString("flags.git-provider")
@@ -140,19 +152,22 @@ func CreateClusterDefinitionRecordFromRaw(gitAuth apiTypes.GitAuth, cliFlags typ
 	}
 
 	cl := apiTypes.ClusterDefinition{
-		AdminEmail:           viper.GetString("flags.alerts-email"),
-		ClusterName:          viper.GetString("flags.cluster-name"),
-		CloudProvider:        cloudProvider,
-		CloudRegion:          viper.GetString("flags.cloud-region"),
-		DomainName:           domainName,
-		Type:                 "mgmt",
-		NodeType:             cliFlags.NodeType,
-		NodeCount:            stringToIntNodeCount,
-		GitopsTemplateURL:    cliFlags.GitopsTemplateURL,
-		GitopsTemplateBranch: cliFlags.GitopsTemplateBranch,
-		GitProvider:          gitProvider,
-		GitProtocol:          viper.GetString("flags.git-protocol"),
-		DnsProvider:          viper.GetString("flags.dns-provider"),
+		AdminEmail:             viper.GetString("flags.alerts-email"),
+		ClusterName:            viper.GetString("flags.cluster-name"),
+		CloudProvider:          cloudProvider,
+		CloudRegion:            viper.GetString("flags.cloud-region"),
+		DomainName:             domainName,
+		SubdomainName:          cliFlags.SubDomainName,
+		Type:                   "mgmt",
+		NodeType:               cliFlags.NodeType,
+		NodeCount:              stringToIntNodeCount,
+		GitopsTemplateURL:      cliFlags.GitopsTemplateURL,
+		GitopsTemplateBranch:   cliFlags.GitopsTemplateBranch,
+		GitProvider:            gitProvider,
+		GitProtocol:            viper.GetString("flags.git-protocol"),
+		DnsProvider:            viper.GetString("flags.dns-provider"),
+		LogFileName:            viper.GetString("k1-paths.log-file-name"),
+		PostInstallCatalogApps: catalogApps,
 		GitAuth: apiTypes.GitAuth{
 			Token:      gitAuth.Token,
 			User:       gitAuth.User,
@@ -245,4 +260,37 @@ func ExportCluster(cluster apiTypes.Cluster, kcfg *k8s.KubernetesClient) error {
 	viper.WriteConfig()
 
 	return nil
+}
+
+func ConsumeStream(url string) {
+	client := &http.Client{}
+
+	req, err := http.NewRequest("GET", url, nil)
+	if err != nil {
+		fmt.Println("Error creating request:", err)
+		return
+	}
+
+	resp, err := client.Do(req)
+	if err != nil {
+		fmt.Println("Error making request:", err)
+		return
+	}
+
+	if resp.StatusCode != http.StatusOK {
+		fmt.Println("Error response:", resp.Status)
+		return
+	}
+
+	// Read and print the streamed data until done signal is received
+	scanner := bufio.NewScanner(resp.Body)
+	for scanner.Scan() {
+		data := scanner.Text()
+		log.Info().Msgf(data)
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Error().Msgf("Error reading response: %s", err.Error())
+		return
+	}
 }

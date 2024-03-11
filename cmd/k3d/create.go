@@ -26,6 +26,7 @@ import (
 	"github.com/kubefirst/kubefirst-api/pkg/handlers"
 	"github.com/kubefirst/kubefirst-api/pkg/reports"
 	"github.com/kubefirst/kubefirst-api/pkg/wrappers"
+	"github.com/kubefirst/kubefirst/internal/catalog"
 	"github.com/kubefirst/kubefirst/internal/gitShim"
 	"github.com/kubefirst/kubefirst/internal/segment"
 	"github.com/kubefirst/kubefirst/internal/utilities"
@@ -105,6 +106,11 @@ func runK3d(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	installCatalogAppsFlag, err := cmd.Flags().GetString("install-catalog-apps")
+	if err != nil {
+		return err
+	}
+
 	useTelemetryFlag, err := cmd.Flags().GetBool("use-telemetry")
 	if err != nil {
 		return err
@@ -118,6 +124,11 @@ func runK3d(cmd *cobra.Command, args []string) error {
 
 	utilities.CreateK1ClusterDirectory(clusterNameFlag)
 	helpers.DisplayLogHints()
+
+	isValid, catalogApps, err := catalog.ValidateCatalogApps(installCatalogAppsFlag)
+	if !isValid {
+		return err
+	}
 
 	switch gitProviderFlag {
 	case "github":
@@ -369,6 +380,13 @@ func runK3d(cmd *cobra.Command, args []string) error {
 		viper.WriteConfig()
 	}
 
+	atlantisNgrokAuthtoken := viper.GetString("secrets.atlantis-ngrok-authtoken")
+	if atlantisNgrokAuthtoken == "" {
+		atlantisNgrokAuthtoken = os.Getenv("NGROK_AUTHTOKEN")
+		viper.Set("secrets.atlantis-ngrok-authtoken", atlantisNgrokAuthtoken)
+		viper.WriteConfig()
+	}
+
 	log.Info().Msg("checking authentication to required providers")
 
 	// check disk
@@ -544,6 +562,10 @@ func runK3d(cmd *cobra.Command, args []string) error {
 	progressPrinter.IncrementTracker("preflight-checks", 1)
 	progressPrinter.AddTracker("cloning-and-formatting-git-repositories", "Cloning and formatting git repositories", 1)
 	progressPrinter.SetupProgress(progressPrinter.TotalOfTrackers(), false)
+	removeAtlantis := false
+	if viper.GetString("secrets.atlantis-ngrok-authtoken") == "" {
+		removeAtlantis = true
+	}
 	if !viper.GetBool("kubefirst-checks.gitops-ready-to-push") {
 		log.Info().Msg("generating your new gitops repository")
 		err := k3d.PrepareGitRepositories(
@@ -560,6 +582,7 @@ func runK3d(cmd *cobra.Command, args []string) error {
 			config.MetaphorDir,
 			&metaphorTemplateTokens,
 			gitProtocolFlag,
+			removeAtlantis,
 		)
 		if err != nil {
 			return err
@@ -992,9 +1015,11 @@ func runK3d(cmd *cobra.Command, args []string) error {
 			log.Error().Err(err).Msg("")
 		}
 
-		err = pkg.OpenBrowser(pkg.ArgoCDLocalURLTLS)
-		if err != nil {
-			log.Error().Err(err).Msg("")
+		if os.Getenv("SKIP_ARGOCD_LAUNCH") != "true" {
+			err = pkg.OpenBrowser(pkg.ArgoCDLocalURLTLS)
+			if err != nil {
+				log.Error().Err(err).Msg("")
+			}
 		}
 	}
 
@@ -1216,6 +1241,7 @@ func runK3d(cmd *cobra.Command, args []string) error {
 		tfEnvs["AWS_SECRET_ACCESS_KEY"] = pkg.MinioDefaultPassword
 		tfEnvs["TF_VAR_aws_access_key_id"] = pkg.MinioDefaultUsername
 		tfEnvs["TF_VAR_aws_secret_access_key"] = pkg.MinioDefaultPassword
+		tfEnvs["TF_VAR_ngrok_authtoken"] = viper.GetString("secrets.atlantis-ngrok-authtoken")
 		// tfEnvs["TF_LOG"] = "DEBUG"
 
 		tfEntrypoint := config.GitopsDir + "/terraform/vault"
@@ -1334,7 +1360,7 @@ func runK3d(cmd *cobra.Command, args []string) error {
 	// Set flags used to track status of active options
 	helpers.SetClusterStatusFlags(k3d.CloudProvider, config.GitProvider)
 
-	cluster := utilities.CreateClusterRecordFromRaw(useTelemetryFlag, cGitOwner, cGitUser, cGitToken, cGitlabOwnerGroupID, gitopsTemplateURLFlag, gitopsTemplateBranchFlag)
+	cluster := utilities.CreateClusterRecordFromRaw(useTelemetryFlag, cGitOwner, cGitUser, cGitToken, cGitlabOwnerGroupID, gitopsTemplateURLFlag, gitopsTemplateBranchFlag, catalogApps)
 
 	err = utilities.ExportCluster(cluster, kcfg)
 	if err != nil {

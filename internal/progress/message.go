@@ -198,7 +198,7 @@ func Error(message string) {
 	Progress.Send(renderedMessage)
 }
 
-func StartProvisioning(clusterName string, estimatedTime int) {
+func StartProvisioning(clusterName string) {
 	provisioningMessage := startProvision{
 		clusterName: clusterName,
 	}
