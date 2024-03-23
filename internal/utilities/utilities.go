@@ -198,6 +198,11 @@ func CreateClusterDefinitionRecordFromRaw(gitAuth apiTypes.GitAuth, cliFlags typ
 		cl.DigitaloceanAuth.Token = os.Getenv("DO_TOKEN")
 		cl.DigitaloceanAuth.SpacesKey = os.Getenv("DO_SPACES_KEY")
 		cl.DigitaloceanAuth.SpacesSecret = os.Getenv("DO_SPACES_SECRET")
+	case "ovh":
+		cl.OvhAuth.Endpoint = os.Getenv("OVH_ENDPOINT")
+		cl.OvhAuth.ApplicationKey = os.Getenv("OVH_APPLICATION_KEY")
+		cl.OvhAuth.ApplicationSecret = os.Getenv("OVH_APPLICATION_SECRET")
+		cl.OvhAuth.ConsumerKey = os.Getenv("OVH_CONSUMER_KEY")
 	case "vultr":
 		cl.VultrAuth.Token = os.Getenv("VULTR_API_KEY")
 	case "k3s":
@@ -218,7 +223,6 @@ func CreateClusterDefinitionRecordFromRaw(gitAuth apiTypes.GitAuth, cliFlags typ
 
 		cl.GoogleAuth.KeyFile = string(jsonContent)
 		cl.GoogleAuth.ProjectId = cliFlags.GoogleProject
-	}
 
 	return cl
 }
@@ -247,7 +251,6 @@ func ExportCluster(cluster apiTypes.Cluster, kcfg *k8s.KubernetesClient) error {
 	}
 
 	err = k8s.CreateSecretV2(kcfg.Clientset, secret)
-
 	if err != nil {
 		return fmt.Errorf(fmt.Sprintf("unable to save secret to management cluster. %s", err))
 	}
